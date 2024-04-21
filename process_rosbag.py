@@ -3,6 +3,7 @@ import cv2
 import rosbag
 from tqdm import tqdm
 from cv_bridge import CvBridge
+import argparse
 
 
 class ExtractBagData(object):
@@ -64,11 +65,29 @@ class ExtractBagData(object):
 
 
 if __name__ == "__main__":
+
+    # 创建解析器
+    parser = argparse.ArgumentParser(description='Process rosbag data.')
+
+    # 添加参数
+    parser.add_argument('--input', type=str, required=True, help='Absolute path to the bag file.')
+    parser.add_argument('--topic_camera', type=str, required=True, help='Camera topic.')
+    parser.add_argument('--topic_pointcloud', type=str, required=True, help='Point cloud topic.')
+    parser.add_argument('--output', type=str, required=True, help='Root path for output.')
+
+    # 解析参数
+    args = parser.parse_args()
+
+    # bagfile_path="/mnt/e/2024-01-13-12-40-28.bag",  # bag 文件的绝对路径
+    # camera_topic="/stereo_publisher/color/image",  # 相机 topic
+    # pointcloud_topic="/livox/lidar",  # 点云 topic
+    # output_path="/mnt/e/output/",  # 输出的根路径
+
     extract_bag = ExtractBagData(
-        bagfile_path="/mnt/e/2024-01-13-12-40-28.bag",  # bag 文件的绝对路径
-        camera_topic="/stereo_publisher/color/image",  # 相机 topic
-        pointcloud_topic="/livox/lidar",  # 点云 topic
-        output_path="/mnt/e/output/",  # 输出的根路径
+        bagfile_path=args.input,  # bag 文件的绝对路径
+        camera_topic=args.topic_camera,  # 相机 topic
+        pointcloud_topic=args.topic_pointcloud,  # 点云 topic
+        output_path=args.output,  # 输出的根路径
     )
 
     extract_bag.bag_to_image()  # 提取图片

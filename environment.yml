@@ -1,0 +1,12 @@
+name: process_rosbag
+channels:
+  - defaults
+dependencies:
+  - python=3.8.10
+  - pip
+  - pip:
+    - rospkg
+    - gnupg
+    - pycryptodomex
+    - opencv-python
+    - tqdm
