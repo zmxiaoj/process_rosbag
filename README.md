@@ -19,5 +19,5 @@ conda activate process_rosbag
 python process_rosbag.py -i <input_rosbag> -o <output_folder> -t_camera <topic_camera> -t_lidar <topic_lidar>
 
 # Example
-python process_rosbag.py
+python process_rosbag.py --input '/home/zmxj/code/Datasets/lidar+d455/2024-03-23-13-33-43.bag' --output /home/zmxj/code/Datasets/lidar+d455/output --topic_camera /camera/color/image_raw --topic_lidar /livox/lidar
 ```
