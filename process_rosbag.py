@@ -11,6 +11,8 @@ class ExtractBagData(object):
         self.bagfile_path = bagfile_path  # bag 路径
         self.camera_topic = camera_topic  # 相机话题 topic
         self.pointcloud_topic = pointcloud_topic  # 点云话题 topic
+        # 在输出路径的名称设置为 output + bag 文件的名称
+        output_path = os.path.join(output_path, os.path.basename(bagfile_path).split(".")[0])
         self.output_path = output_path  # 输出的根路径
         self.image_dir = os.path.join(output_path, "images")  # 存放照片的路径
         self.pointcloud_dir = os.path.join(output_path, "pointcloud")  # 存放点云的路径
@@ -33,8 +35,15 @@ class ExtractBagData(object):
             pbar.set_description("extract image id: %s" % (index + 1))
             # 消息转为图片
             cv_image = bridge.imgmsg_to_cv2(msg, "bgr8")
+            # 获取时间戳 
+            # msg.header.stamp表示话题发布的时间戳，t表示消息接收的时间戳   
+            timestamp = str(msg.header.stamp)
+            # print("\ntimestamp: ", timestamp)
+            t = str(t.to_nsec())
+            # print("t: ", t)
             # 存储图片 .bmp .png .jpg
-            cv2.imwrite(os.path.join(self.image_dir, str(index) + ".png"), cv_image)
+            # cv2.imwrite(os.path.join(self.image_dir, str(index) + ".png"), cv_image)
+            cv2.imwrite(os.path.join(self.image_dir, t + ".png"), cv_image)
             # index += 1
 
     def bag_to_pointcloud(self):
@@ -42,6 +51,8 @@ class ExtractBagData(object):
         - 提取点云数据为 pcd 后缀文件，默认提取以时间戳命名
         - 提取命令：rosrun pcl_ros bag_to_pcd result.bag /velodyne_points ./pointcloud
         """
+        # 启动roscore
+        os.system("roscore &")
         cmd = "rosrun pcl_ros bag_to_pcd %s %s %s" % (
             self.bagfile_path,
             self.pointcloud_topic,
@@ -57,11 +68,23 @@ class ExtractBagData(object):
         pbar = tqdm(pcd_files_list_sorted)
         for index, pcd_file in enumerate(pbar, start=0):
             pbar.set_description("extract poindcloud id: %s" % (index + 1))
+            # 
             os.rename(
                 os.path.join(self.pointcloud_dir, pcd_file),
-                os.path.join(self.pointcloud_dir, str(index) + ".pcd"),
+                os.path.join(self.pointcloud_dir, pcd_file.replace(".", "", 1)),
             )
+            # 去掉文件名第一个"."
+            pcd_file = pcd_file.replace(".", "", 1)
+            # 将 pcd 文件转换为 ply 文件
+            ply_file = pcd_file.split(".")[0] + ".ply"
+            cmd = "pcl_pcd2ply %s %s" % (
+                os.path.join(self.pointcloud_dir, pcd_file),
+                os.path.join(self.pointcloud_dir, ply_file),
+            )
+            os.system(cmd)
             print("pcd_file name: ", pcd_file)
+            print("ply_file name: ", ply_file)
+
 
 
 if __name__ == "__main__":
