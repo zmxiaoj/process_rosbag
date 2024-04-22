@@ -15,13 +15,23 @@ conda env create -f environment.yml
 ```bash
 # Activate conda environment
 conda activate process_rosbag
+# source envirnonment paramters
+source /opt/ros/noetic/setup.zsh 
 # Run the script
 python process_rosbag.py -i <input_rosbag> -o <output_folder> -t_camera <topic_camera> -t_lidar <topic_lidar>
 
-# Example
+# Example 1 
 python process_rosbag.py \
 --input '/home/zmxj/code/Datasets/lidar+d455/2024-03-23-13-33-43.bag' \
 --output /home/zmxj/code/Datasets/lidar+d455/output \
 --topic_camera /camera/color/image_raw \
 --topic_pointcloud /livox/lidar
+
+# Example 2 
+python process_rosbag_infra.py \     
+--input '/home/zmxj/code/Datasets/20240422cam_infra_lidar/2024-04-22-16-45-53_box.bag' \
+--output /home/zmxj/code/Datasets/20240422cam_infra_lidar/output \
+--topic_camera /camera/color/image_raw \
+--topic_pointcloud /livox/lidar \
+--infra
 ```
