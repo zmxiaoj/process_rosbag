@@ -34,4 +34,13 @@ python process_rosbag_infra.py \
 --topic_camera /camera/color/image_raw \
 --topic_pointcloud /livox/lidar \
 --infra
+
+# Example 3
+python process_rosbag_infra_nopointcloud.py \
+--input '/home/zmxj/code/Datasets/20240505cam_infra_rgb/d455_infra_rgb.bag' \
+--output /home/zmxj/code/Datasets/20240505cam_infra_rgb/output \
+--topic_camera /camera/color/image_raw \
+--topic_pointcloud /livox/lidar \
+--infra 
+
 ```
