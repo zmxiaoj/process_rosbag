@@ -43,4 +43,8 @@ python process_rosbag_infra_nopointcloud.py \
 --topic_pointcloud /livox/lidar \
 --infra 
 
+
+## Example 4 for project lidar pointcloud to camera image
+python process_rosbag_project.py 
+
 ```
