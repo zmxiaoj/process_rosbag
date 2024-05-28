@@ -63,7 +63,7 @@ def project(points, image, M1, M2):
     # 计算点云在相机坐标系下的坐标
     coords_current = coords @ M2.T 
     # coords_current = coords_current[np.where((coords_current[:, 2] > 0.20) & (coords_current[:, 2] < 15))]
-    coords_current = coords_current[np.where((coords_current[:, 2] > 0 ))]
+    coords_current = coords_current[np.where((coords_current[:, 2] > 2 ) & (coords_current[:, 2] < 15))]
     print(coords_current.shape)
 
     # 计算点云在像素坐标系下的坐标
@@ -107,15 +107,21 @@ def show_with_opencv(image, coords=None):
     # 对coords[2]进行归一化
     coords_z_norm = colors.Normalize(vmin=coords[:, 2].min(), vmax=coords[:, 2].max())(coords[:, 2])
     if coords is not None:
-        for index in range(coords.shape[0]):
+        # 按照深度(z坐标)排序，使得远处的点先被绘制
+        sorted_indices = np.argsort(coords[:, 2])[::-1]
+        for index in sorted_indices:
             p = (int(coords[index, 0]), int(coords[index, 1]))
             # 应用颜色映射，得到RGB颜色
             rgb_color = cmap(coords_z_norm[index])[:3]
             # 将rgb_color的值从[0, 1]区间转换到[0, 255]区间，并转换为整数
             rgb_color = (np.array(rgb_color) * 255).astype(int)
-            cv2.circle(canvas, p, 2, color=rgb_color.tolist(), thickness=1)
-            cv2.circle(img_lidar, p, 2, color=rgb_color.tolist(), thickness=1)
-            cv2.circle(img_lidar_black, p, 2, color=rgb_color.tolist(), thickness=1)
+            # 根据深度调整点的大小，使得近处的点大于远处的点
+            radius = int(5 * (1 - coords_z_norm[index]))
+            # radius = 2
+
+            cv2.circle(canvas, p, radius, color=rgb_color.tolist(), thickness=-1)
+            cv2.circle(img_lidar, p, radius, color=rgb_color.tolist(), thickness=-1)
+            cv2.circle(img_lidar_black, p, radius, color=rgb_color.tolist(), thickness=-1)
     canvas = canvas.astype(np.uint8)
     canvas = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
 
@@ -131,8 +137,12 @@ def show_with_opencv(image, coords=None):
 
 
 if __name__ == '__main__':
-    points = read_pcd('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-59-20_tree/scans.pcd')
-    img = cv2.imread('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-59-20_tree/infra_images/1713776380353760107_1.png')
+    # datasets_tree
+    # points = read_pcd('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-59-20_tree/scans.pcd')
+    # img = cv2.imread('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-59-20_tree/infra_images/1713776380353760107_1.png')
+    # datasets_box
+    points = read_pcd('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-45-53_box/scans.pcd')
+    img = cv2.imread('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-45-53_box/infra_images/1713775615829020319_1.png')
     # TODO: undistort
     # Distortion model: radtan
     # Distortion coefficients: [0.0008199309529270651, 0.0009753090923884344, 0.00019208353144597011, 0.0002669581142685641]
@@ -155,9 +165,18 @@ if __name__ == '__main__':
     T_lidar2cam = T_imu2cam @ T_lidar2imu
 
     # timestamp t.x t.y t.z q.x q.y q.z q.w
+    # tree 
     # 1713776380.315001249 0.449649423 -0.526561961 0.100077772 -0.027703782 0.055361529 -0.117364527 0.991157490
-    t = [0.449649423, -0.526561961, 0.100077772]
-    q_xyzw = [-0.027703782, 0.055361529, -0.117364527, 0.991157490]
+    # t = [0.449649423, -0.526561961, 0.100077772]
+    # q_xyzw = [-0.027703782, 0.055361529, -0.117364527, 0.991157490]
+    # box
+    # 1713775558.892144918 3.390272918 -0.833027783 0.714059995 -0.010689520 -0.085178690 -0.029043469 0.995884934
+    # 1713775615.824685097 13.627896289 0.313170908 2.998558731 0.054844431 -0.026343355 -0.800791394 0.595844996
+    # 1713775604.557905436 9.208605812 -3.043218760 1.942622104 -0.038414712 -0.092868895 0.020914551 0.994717176
+    # 1713775556.024746656 1.315466880 -0.273530509 0.228306446 0.035951976 -0.087664849 -0.034209703 0.994913075
+    # 1713775554.458202124 0.107204243 -0.038100844 0.044389021 -0.000766078 -0.004780799 0.014499025 0.999883161
+    t = [5.109403732, -1.584595306, 1.097076970 ]   
+    q_xyzw = [0.025756272, -0.069213015, -0.047573962, 0.996133972] 
     # 将q_xyzw归一化
     q_xyzw = q_xyzw / np.linalg.norm(q_xyzw)
     # q_wxyz = [q_xyzw[3], q_xyzw[0], q_xyzw[1], q_xyzw[2]]
@@ -176,7 +195,7 @@ if __name__ == '__main__':
     # print(T_orign2current @ np.linalg.inv(T_orign2current))
     # print(T_orign2current)
     T_orign2camera = T_lidar2cam @ T_orign2current
-    # T_orign2camera = T_imu2cam @ T_orign2current
+    T_orign2camera = T_imu2cam @ T_orign2current
     coords = project(points, img, M1, T_orign2camera)
     show_with_opencv(img, coords=coords)
 
