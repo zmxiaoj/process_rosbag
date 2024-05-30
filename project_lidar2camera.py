@@ -63,7 +63,7 @@ def project(points, image, M1, M2):
     # 计算点云在相机坐标系下的坐标
     coords_current = coords @ M2.T 
     # coords_current = coords_current[np.where((coords_current[:, 2] > 0.20) & (coords_current[:, 2] < 15))]
-    coords_current = coords_current[np.where((coords_current[:, 2] > 2 ) & (coords_current[:, 2] < 15))]
+    coords_current = coords_current[np.where((coords_current[:, 2] > 0.20 ) )]
     print(coords_current.shape)
 
     # 计算点云在像素坐标系下的坐标
@@ -140,9 +140,19 @@ if __name__ == '__main__':
     # datasets_tree
     # points = read_pcd('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-59-20_tree/scans.pcd')
     # img = cv2.imread('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-59-20_tree/infra_images/1713776380353760107_1.png')
+    
     # datasets_box
-    points = read_pcd('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-45-53_box/scans.pcd')
-    img = cv2.imread('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-45-53_box/infra_images/1713775615829020319_1.png')
+    # points = read_pcd('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-45-53_box/scans.pcd')
+    # img = cv2.imread('/home/zmxj/code/Datasets/20240422cam_infra_lidar/output/2024-04-22-16-45-53_box/infra_images/1713775615829020319_1.png')
+    
+    # datasets_box_new
+    # points = read_pcd('/home/zmxj/code/Datasets/20240529cam_lidar/output/20240529_d455_lidar/scans.pcd')
+    # img = cv2.imread('/home/zmxj/code/Datasets/20240529cam_lidar/output/20240529_d455_lidar/infra_images/1716982960834713193_1.png')
+
+    # datasets_box_new
+    points = read_pcd('/home/zmxj/code/Datasets/20240529cam_lidar/output/20240529_tree/scans.pcd')
+    img = cv2.imread('/home/zmxj/code/Datasets/20240529cam_lidar/output/20240529_tree/infra_images/1716992137778292235_1.png')
+
     # TODO: undistort
     # Distortion model: radtan
     # Distortion coefficients: [0.0008199309529270651, 0.0009753090923884344, 0.00019208353144597011, 0.0002669581142685641]
@@ -175,8 +185,16 @@ if __name__ == '__main__':
     # 1713775604.557905436 9.208605812 -3.043218760 1.942622104 -0.038414712 -0.092868895 0.020914551 0.994717176
     # 1713775556.024746656 1.315466880 -0.273530509 0.228306446 0.035951976 -0.087664849 -0.034209703 0.994913075
     # 1713775554.458202124 0.107204243 -0.038100844 0.044389021 -0.000766078 -0.004780799 0.014499025 0.999883161
-    t = [5.109403732, -1.584595306, 1.097076970 ]   
-    q_xyzw = [0.025756272, -0.069213015, -0.047573962, 0.996133972] 
+    # box_new
+    # 1716982960.840327740 0.078888632 0.007249208 -0.005471448 -0.016008800 0.100572695 -0.061843653 0.992876736
+    # 1716983052.909453392 14.844449372 3.998762430 -1.337474186 -0.000477630 0.063451639 0.371706026 0.926179406
+    # 1716983046.441487312 14.816408095 4.030169645 -1.345039903 -0.003049507 0.060942450 0.476709328 0.876940668
+    # 1716983042.975462675 13.407206870 3.907722110 -1.188876175 0.002422793 0.073501342 0.655459431 0.751641282
+    # tree_new
+    # 1716992137.762100935 24.597279009 -10.806595930 -0.618385338 -0.027517933 -0.023816320 -0.881140381 0.471452197
+    # 1716992088.494944096 0.018604187 0.049228831 -0.207596469 0.022846804 -0.046619863 -0.058181004 0.996955156
+    t = [24.597279009, -10.806595930, -0.618385338]   
+    q_xyzw = [-0.027517933, -0.023816320, -0.881140381, 0.471452197] 
     # 将q_xyzw归一化
     q_xyzw = q_xyzw / np.linalg.norm(q_xyzw)
     # q_wxyz = [q_xyzw[3], q_xyzw[0], q_xyzw[1], q_xyzw[2]]
@@ -195,7 +213,7 @@ if __name__ == '__main__':
     # print(T_orign2current @ np.linalg.inv(T_orign2current))
     # print(T_orign2current)
     T_orign2camera = T_lidar2cam @ T_orign2current
-    T_orign2camera = T_imu2cam @ T_orign2current
+    # T_orign2camera = T_imu2cam @ T_orign2current
     coords = project(points, img, M1, T_orign2camera)
     show_with_opencv(img, coords=coords)
 
