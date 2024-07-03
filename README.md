@@ -47,4 +47,13 @@ python process_rosbag_infra_nopointcloud.py \
 ## Example 4 for project lidar pointcloud to camera image
 python process_lidar2camera.py
 
+
+## Example 5 for extract odom from rosbag
+python process_rosbag_odom.py \
+--input /home/zmxj/code/Datasets/uavtest.bag \
+--output /home/zmxj/code/Datasets \
+--topic_camera /camera/color/image_raw \
+--topic_pointcloud /drone_0_ego_planner_node/grid_map/occupancy_inflate \
+--topic_odometry /vins_fusion/imu_propagate 
+
 ```
